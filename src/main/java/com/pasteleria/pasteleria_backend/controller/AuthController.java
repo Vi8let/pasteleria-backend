@@ -1,15 +1,17 @@
 package com.pasteleria.pasteleria_backend.controller;
 
-import com.pasteleria.pasteleria_backend.model.User;
+import com.pasteleria.pasteleria_backend.model.*;
 import com.pasteleria.pasteleria_backend.repository.UserRepository;
 import com.pasteleria.pasteleria_backend.security.JwtUtil;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,29 +34,57 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public Map<String, Object> register(@RequestBody User u) {
-        // verifica si email ya existe
-        if (userRepository.findByEmail(u.getEmail()) != null) {
-            return Map.of("ok", false, "message", "Email already taken");
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El correo ya está registrado");
         }
-        u.setRole("USER");
-        u.setPassword(passwordEncoder.encode(u.getPassword()));
-        User saved = userRepository.save(u);
-        return Map.of("ok", true, "userId", saved.getId());
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setFullName(request.getFullName());
+        user.setRole("USER");
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        userRepository.save(user);
+
+        return buildAuthResponse(user);
     }
 
     @PostMapping("/login")
-    public Map<String, Object> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String password = body.get("password");
+    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        // Autentica con AuthenticationManager (lanzará excepción si falla)
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
+        }
 
-        // si ok, buscamos user y generamos token
-        User u = userRepository.findByEmail(email);
-        String token = jwtUtil.generateToken(u.getEmail(), u.getRole());
+        return buildAuthResponse(user);
+    }
 
-        return Map.of("ok", true, "token", token, "role", u.getRole(), "email", u.getEmail());
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public UserProfile me(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado");
+        }
+
+        UserProfile profile = new UserProfile();
+        profile.setEmail(user.getEmail());
+        profile.setFullName(user.getFullName());
+        profile.setRole(user.getRole());
+        return profile;
+    }
+
+    private AuthResponse buildAuthResponse(User user) {
+        AuthResponse response = new AuthResponse();
+        response.setOk(true);
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setToken(jwtUtil.generateToken(user.getEmail(), user.getRole()));
+        return response;
     }
 }

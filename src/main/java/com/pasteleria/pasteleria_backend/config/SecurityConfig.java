@@ -2,7 +2,6 @@ package com.pasteleria.pasteleria_backend.config;
 
 import com.pasteleria.pasteleria_backend.security.CustomUserDetailsService;
 import com.pasteleria.pasteleria_backend.security.JwtFilter;
-import com.pasteleria.pasteleria_backend.security.JwtUtil;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        // PÚBLICOS
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
