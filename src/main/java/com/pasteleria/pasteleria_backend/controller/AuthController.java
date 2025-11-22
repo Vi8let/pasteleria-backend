@@ -45,6 +45,12 @@ public class AuthController {
         user.setFullName(request.getFullName());
         user.setRole("USER");
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRun(request.getRun());
+        user.setFechaNacimiento(request.getFechaNacimiento());
+        user.setRegion(request.getRegion());
+        user.setComuna(request.getComuna());
+        user.setDireccion(request.getDireccion());
+        user.setCodigoDescuento(request.getCodigoPromocion());
 
         userRepository.save(user);
 
@@ -76,6 +82,12 @@ public class AuthController {
         profile.setEmail(user.getEmail());
         profile.setFullName(user.getFullName());
         profile.setRole(user.getRole());
+        profile.setRun(user.getRun());
+        profile.setFechaNacimiento(user.getFechaNacimiento());
+        profile.setRegion(user.getRegion());
+        profile.setComuna(user.getComuna());
+        profile.setDireccion(user.getDireccion());
+        profile.setCodigoDescuento(user.getCodigoDescuento());
         return profile;
     }
 

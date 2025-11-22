@@ -18,5 +18,12 @@ public class RegisterRequest {
 
     @NotBlank
     private String fullName;
+
+    private String run;
+    private String fechaNacimiento;
+    private String region;
+    private String comuna;
+    private String direccion;
+    private String codigoPromocion;
 }
 

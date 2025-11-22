@@ -30,4 +30,22 @@ public class User {
     @NotBlank
     @Column(nullable = false)
     private String fullName;
+
+    @Column
+    private String run;
+
+    @Column
+    private String fechaNacimiento;
+
+    @Column
+    private String region;
+
+    @Column
+    private String comuna;
+
+    @Column
+    private String direccion;
+
+    @Column
+    private String codigoDescuento;
 }
