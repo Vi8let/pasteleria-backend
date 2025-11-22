@@ -32,6 +32,10 @@ public class Product {
     @Column(nullable = false)
     private String imageUrl;
 
+    @NotBlank
+    @Column(nullable = false)
+    private String category;
+
     @NotNull
     @Min(0)
     @Column(nullable = false)

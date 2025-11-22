@@ -44,6 +44,7 @@ public class ProductController {
         existing.setDescription(p.getDescription());
         existing.setPrice(p.getPrice());
         existing.setImageUrl(p.getImageUrl());
+        existing.setCategory(p.getCategory());
         existing.setStock(p.getStock());
 
         return repo.save(existing);
