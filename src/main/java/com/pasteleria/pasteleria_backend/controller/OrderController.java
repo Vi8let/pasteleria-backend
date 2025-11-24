@@ -84,12 +84,22 @@ public class OrderController {
             total += product.getPrice() * itemRequest.getQuantity();
         }
 
+        // Aplicar descuento si existe
+        double discountAmount = (request.getDiscountAmount() != null) ? request.getDiscountAmount() : 0.0;
+        double finalTotal = total - discountAmount;
+        if (finalTotal < 0) {
+            finalTotal = 0.0;
+        }
+
         Order order = new Order();
         order.setUserId(user.getId());
         order.setUserEmail(user.getEmail());
         order.setItems(items);
-        order.setTotal(total);
+        order.setTotal(finalTotal);
         order.setStatus("PENDIENTE");
+        order.setDiscountAmount(discountAmount);
+        order.setDiscountPercentage(request.getDiscountPercentage());
+        order.setDiscountDescription(request.getDiscountDescription());
 
         return orderRepository.save(order);
     }

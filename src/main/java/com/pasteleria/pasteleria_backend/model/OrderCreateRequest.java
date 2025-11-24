@@ -12,5 +12,9 @@ public class OrderCreateRequest {
     @NotEmpty
     @Valid
     private List<OrderItemRequest> items;
+
+    private Double discountAmount;
+    private Double discountPercentage;
+    private String discountDescription;
 }
 

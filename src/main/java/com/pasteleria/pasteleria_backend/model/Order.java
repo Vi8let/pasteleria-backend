@@ -29,6 +29,15 @@ public class Order {
     @Column(nullable = false)
     private String status;
 
+    @Column
+    private Double discountAmount = 0.0;
+
+    @Column
+    private Double discountPercentage = 0.0;
+
+    @Column
+    private String discountDescription;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "order_items", joinColumns = @JoinColumn(name = "order_id"))
     private List<OrderItem> items = new ArrayList<>();
